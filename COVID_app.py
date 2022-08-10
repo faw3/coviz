@@ -187,9 +187,9 @@ def plot_county(county):
         column1, column2, column3, column4 = st.columns(4)
         number1 = int(metric.values[0])
         column1.metric('New cases averaged over last 7 days', number1)
-        column2.metric("Population under consideration", population)
-        column3.metric("Total cases", county_confirmed_time.tail(1).values[0][0])
-        column4.metric("Total deaths", county_deaths_time.tail(1).values[0][0])
+        column2.metric("Population under consideration", numerize.numerize(int(population)))
+        column3.metric("Total cases", numerize.numerize(int(county_confirmed_time.tail(1).values[0][0])))
+        column4.metric("Total deaths", numerize.numerize(int(county_deaths_time.tail(1).values[0][0])))
     else:
         st.subheader('Current situation of COVID-19 cases in '+', '.join(map(str, county))+' counties ('+ str(today)+')')
         column1, column2, column3, column4 = st.columns(4)
@@ -399,8 +399,8 @@ def plot_state():
     number3 = str(number2)+"%"
     column1.metric("% test positivity (14 day average)", number3)
     column2.metric("Population under consideration", numerize.numerize(int(population)))
-    column3.metric('Total cases', county_confirmed_time.tail(1).values[0][0])
-    column4.metric("Total deaths", county_deaths_time.tail(1).values[0][0])
+    column3.metric('Total cases', numerize.nurmerize(int(county_confirmed_time.tail(1).values[0][0])))
+    column4.metric("Total deaths", numerize.nurmerize(int(county_deaths_time.tail(1).values[0][0])))
     c1 = st.container()
     c2 = st.container()
     c3 = st.container()
