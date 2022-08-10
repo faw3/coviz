@@ -15,6 +15,8 @@ from streamlit_lottie import st_lottie
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from numerize import numerize 
+
 
 today = date.today()
 
@@ -396,7 +398,7 @@ def plot_state():
     number2 = int(testing_percent)
     number3 = str(number2)+"%"
     column1.metric("% test positivity (14 day average)", number3)
-    column2.metric("Population under consideration", population)
+    column2.metric("Population under consideration", numerize.numerize(population))
     column3.metric('Total cases', county_confirmed_time.tail(1).values[0][0])
     column4.metric("Total deaths", county_deaths_time.tail(1).values[0][0])
     c1 = st.container()
