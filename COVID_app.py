@@ -30,7 +30,7 @@ def load_lottiefile(filepath: str):
         return json.load(f)
 
 
-@st.cache(ttl=3*60*60, suppress_st_warning=True)
+st.cache(ttl=3*60*60, suppress_st_warning=True)
 def get_data():
     US_confirmed = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv'
     US_deaths = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv'
@@ -44,21 +44,16 @@ FIPSs.columns = ['State', 'County', 'FIPS']
 FIPSs['FIPS'].fillna(0, inplace = True)
 FIPSs['FIPS'] = FIPSs.FIPS.astype(int).astype(str).str.zfill(5)
 
-@st.cache(ttl=3*60*60, suppress_st_warning=True)
+st.cache(ttl=3*60*60, suppress_st_warning=True)
 def get_testing_data(County):
     apiKey = '9fe19182c5bf4d1bb105da08e593a578'
     if len(County) == 1:
-        #print(len(County))
         f = FIPSs[FIPSs.County == County[0]].FIPS.values[0]
-        #print(f)
         path1 = 'https://data.covidactnow.org/latest/us/counties/'+f+'.OBSERVED_INTERVENTION.timeseries.json?apiKey='+apiKey
-        #print(path1)
         df = json.loads(requests.get(path1).text)
-        #print(df.keys())
         data = pd.DataFrame.from_dict(df['actualsTimeseries'])
         data['Date'] = pd.to_datetime(data['date'])
         data = data.set_index('Date')
-        #print(data.tail())
         try:
             data['new_negative_tests'] = data['cumulativeNegativeTests'].diff()
             data.loc[(data['new_negative_tests'] < 0)] = np.nan
@@ -78,8 +73,7 @@ def get_testing_data(County):
         data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
         data['new_tests_rolling'] = data['new_tests'].fillna(0).rolling(14).mean()
         data['testing_positivity_rolling'] = (data['new_positive_tests_rolling'] / data['new_tests_rolling'])*100
-        #data['testing_positivity_rolling'].tail(14).plot()
-        #plt.show()
+
         return data['new_tests_rolling'], data['testing_positivity_rolling'].iloc[-1:].values[0]
     elif (len(County) > 1) & (len(County) < 5):
         new_positive_tests = []
@@ -104,36 +98,18 @@ def get_testing_data(County):
                 data.loc[(data['new_positive_tests'] < 0)] = np.nan
             except: 
                 data['new_positive_tests'] = np.nan
-                #print('Negative test data not avilable')
             data['new_tests'] = data['new_negative_tests']+data['new_positive_tests']
 
             new_positive_tests.append(data['new_positive_tests'])
-            #new_negative_tests.append(data['new_tests'])
             new_tests.append(data['new_tests'])
-            #print(data.head())
 
         new_positive_tests_rolling = pd.concat(new_positive_tests, axis = 1).sum(axis = 1)
         new_positive_tests_rolling = new_positive_tests_rolling.fillna(0).rolling(14).mean()
-        #print('new test merging of counties')
-        #print(pd.concat(new_tests, axis = 1).head().sum(axis = 1))
         new_tests_rolling = pd.concat(new_tests, axis = 1).sum(axis = 1)
         new_tests_rolling = new_tests_rolling.fillna(0).rolling(14).mean()
         new_tests_rolling = pd.DataFrame(new_tests_rolling).fillna(0)
         new_tests_rolling.columns = ['new_tests_rolling']
-        #print('whole df')
-        #print(type(new_tests_rolling))
-        #print(new_tests_rolling.head())
-        #print('single column')
-        #print(new_tests_rolling['new_tests_rolling'].head())
-        #print('new_positive_tests_rolling')
-        #print(new_positive_tests_rolling.head())
-        #print('new_tests_rolling')
-        #print(new_tests_rolling.head())
         data_to_show = (new_positive_tests_rolling / new_tests_rolling.new_tests_rolling)*100
-        #print(data_to_show.shape)
-        #print(data_to_show.head())
-        #print(data_to_show.columns)
-        #print(data_to_show.iloc[-1:].values[0])
         return new_tests_rolling, data_to_show.iloc[-1:].values[0]
     else:
         st.text('Getting testing data for California State')
@@ -167,7 +143,6 @@ def get_testing_data(County):
 
 def plot_county(county):
     testing_df, testing_percent = get_testing_data(County=county)
-    #print(testing_df.head())
     county_confirmed = confirmed[confirmed.Admin2.isin(county)]
     county_confirmed_time = county_confirmed.drop(county_confirmed.iloc[:, 0:12], axis=1).T
     county_confirmed_time = county_confirmed_time.sum(axis= 1)
