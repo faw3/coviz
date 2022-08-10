@@ -6,3 +6,4 @@ plotly==5.6.0
 requests==2.27.1
 streamlit==1.10.0
 streamlit_lottie==0.0.3
+numerize==0.12
