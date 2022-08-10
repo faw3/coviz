@@ -195,7 +195,7 @@ def plot_county(county):
         column1, column2, column3, column4 = st.columns(4)
         number1 = int(metric.values[0])
         column1.metric("New cases averaged over last 7 days", number1)
-        column2.metric("Population under consideration", population)
+        column2.metric("Population under consideration", numerize.numerize(int(population)))
         column3.metric('Total cases', county_confirmed_time.tail(1).values[0][0])
         column4.metric("Total deaths", county_deaths_time.tail(1).values[0][0])
     c1 = st.container()
